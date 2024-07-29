@@ -32,8 +32,8 @@ class _EditPageState extends State<EditPage> {
   );
 
   void _loadNote() async {
-    SharedPreferences _prefs = await SharedPreferences.getInstance();
-    final notesStr = _prefs.getStringList('notes');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final notesStr = prefs.getStringList('notes');
     if (notesStr != null) {
       final notes =
           notesStr.map((note) => Note.fromJson(jsonDecode(note))).toList();
@@ -48,8 +48,8 @@ class _EditPageState extends State<EditPage> {
 
   void _saveNote() async {
     if (_formKey.currentState!.validate()) {
-      SharedPreferences _prefs = await SharedPreferences.getInstance();
-      final notesStr = _prefs.getStringList('notes');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final notesStr = prefs.getStringList('notes');
       if (notesStr != null) {
         final notes =
             notesStr.map((note) => Note.fromJson(jsonDecode(note))).toList();
@@ -62,7 +62,7 @@ class _EditPageState extends State<EditPage> {
             summary: _summary,
             lastEdited: DateTime.now(),
           );
-          await _prefs.setStringList(
+          await prefs.setStringList(
             'notes',
             notes.map((note) => jsonEncode(note.toJson())).toList(),
           );
@@ -72,15 +72,15 @@ class _EditPageState extends State<EditPage> {
   }
 
   void _deleteNote() async {
-    SharedPreferences _prefs = await SharedPreferences.getInstance();
-    final notesStr = _prefs.getStringList('notes');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final notesStr = prefs.getStringList('notes');
     if (notesStr != null) {
       final notes =
           notesStr.map((note) => Note.fromJson(jsonDecode(note))).toList();
       final index = notes.indexWhere((note) => note.id == widget.id);
       if (index != -1) {
         notes.removeAt(index);
-        await _prefs.setStringList(
+        await prefs.setStringList(
           'notes',
           notes.map((note) => jsonEncode(note.toJson())).toList(),
         );
