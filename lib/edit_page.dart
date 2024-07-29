@@ -1,10 +1,8 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
+import 'package:cloudflare_ai/cloudflare_ai.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'constants.dart';
@@ -92,20 +90,21 @@ class _EditPageState extends State<EditPage> {
   }
 
   void _generateSummary() {
-    final model =
-        GenerativeModel(model: 'gemini-pro', apiKey: Constants.apiKey);
-    final content = [
-      Content.text(
-        "Generate a summary of this note with title: ${_titleController.text} and content: ${_contentController.text}",
-      )
-    ];
+    final model = TextGenerationModel(
+      accountId: Constants.accountId,
+      apiKey: Constants.apiKey,
+      model: TextGenerationModels.LLAMA_31_8B_INSTRUCT,
+    );
     setState(() {
       _isSummaryLoading = true;
     });
-    model.generateContent(content).then((response) {
+    model
+        .generateText(
+            "Generate a summary of this note with title: ${_titleController.text} and content: ${_contentController.text}")
+        .then((response) {
       setState(() {
-        debugPrint('Summary: ${response.text}');
-        _summary = response.text ?? '';
+        debugPrint('Summary: ${response.result?.response ?? ""}');
+        _summary = response.result?.response ?? '';
         _isSummaryLoading = false;
       });
       _saveNote();
@@ -122,113 +121,83 @@ class _EditPageState extends State<EditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Note'),
-        elevation: 0,
-        leading: Card(
-          color: Colors.grey[900],
-          elevation: 5,
-          child: InkWell(
-            onTap: () {
-              _saveNote();
-              Navigator.of(context).pop();
-            },
-            child: const Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            ),
-          ),
-        ),
-        actions: [
-          Card(
+        appBar: AppBar(
+          title: const Text('Edit Note'),
+          elevation: 0,
+          leading: Card(
             color: Colors.grey[900],
             elevation: 5,
             child: InkWell(
-              onTap: _generateSummary,
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Icon(
-                  Icons.chat_rounded,
-                  color: Colors.white,
-                ),
+              onTap: () {
+                _saveNote();
+                Navigator.of(context).pop();
+              },
+              child: const Icon(
+                Icons.arrow_back,
+                color: Colors.white,
               ),
             ),
           ),
-          Card(
-            color: Colors.grey[900],
-            elevation: 5,
-            child: InkWell(
-              onTap: _deleteNote,
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Icon(
-                  Icons.delete,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          _isSummaryLoading
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                )
-              : const SizedBox(),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _titleController,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 28,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    cursorColor: Colors.white,
-                    maxLines: 3,
-                    minLines: 1,
-                    onEditingComplete: _saveNote,
-                    decoration: const InputDecoration(
-                      hintText: "Title",
-                      hintStyle: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 28,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.transparent,
-                        ),
-                      ),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.transparent,
-                        ),
-                      ),
-                    ),
+          actions: [
+            Card(
+              color: Colors.grey[900],
+              elevation: 5,
+              child: InkWell(
+                onTap: _generateSummary,
+                child: const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Icon(
+                    Icons.chat_rounded,
+                    color: Colors.white,
                   ),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _contentController,
+                ),
+              ),
+            ),
+            Card(
+              color: Colors.grey[900],
+              elevation: 5,
+              child: InkWell(
+                onTap: _deleteNote,
+                child: const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Icon(
+                    Icons.delete,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        body: Stack(
+          children: [
+            _isSummaryLoading
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : const SizedBox(),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _titleController,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w400,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w600,
                       ),
                       cursorColor: Colors.white,
-                      maxLines: null,
+                      maxLines: 3,
+                      minLines: 1,
                       onEditingComplete: _saveNote,
                       decoration: const InputDecoration(
-                        hintText: "Content",
+                        hintText: "Title",
                         hintStyle: TextStyle(
                           color: Colors.grey,
-                          fontSize: 18,
+                          fontSize: 28,
                           fontWeight: FontWeight.w400,
                         ),
                         focusedBorder: UnderlineInputBorder(
@@ -243,47 +212,76 @@ class _EditPageState extends State<EditPage> {
                         ),
                       ),
                     ),
-                  ),
-                  _summary.isNotEmpty
-                      ? const Divider(
+                    Expanded(
+                      child: TextFormField(
+                        controller: _contentController,
+                        style: const TextStyle(
                           color: Colors.white,
-                        )
-                      : Container(),
-                  _summary.isNotEmpty
-                      ? SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.2,
-                          child: ListView(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: MarkdownBody(
-                                  data: _summary,
-                                  styleSheet: MarkdownStyleSheet(
-                                    p: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w400,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        cursorColor: Colors.white,
+                        maxLines: null,
+                        onEditingComplete: _saveNote,
+                        decoration: const InputDecoration(
+                          hintText: "Content",
+                          hintStyle: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.transparent,
+                            ),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.transparent,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    _summary.isNotEmpty
+                        ? const Divider(
+                            color: Colors.white,
+                          )
+                        : Container(),
+                    _summary.isNotEmpty
+                        ? SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.2,
+                            child: ListView(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: MarkdownBody(
+                                    data: _summary,
+                                    styleSheet: MarkdownStyleSheet(
+                                      p: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w400,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : const SizedBox(),
-                ],
+                              ],
+                            ),
+                          )
+                        : const SizedBox(),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: (){
-          _saveNote();
-          Navigator.of(context).pop();
-        },
-        child: const Icon(Icons.check),
-      )
-    );
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            _saveNote();
+            Navigator.of(context).pop();
+          },
+          child: const Icon(Icons.check),
+        ));
   }
 }
