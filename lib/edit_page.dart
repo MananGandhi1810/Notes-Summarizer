@@ -100,7 +100,8 @@ class _EditPageState extends State<EditPage> {
     });
     model
         .generateText(
-            "Generate a summary of this note with title: ${_titleController.text} and content: ${_contentController.text}")
+      "Generate a summary of this note with title: ${_titleController.text} and content: ${_contentController.text}",
+    )
         .then((response) {
       setState(() {
         debugPrint('Summary: ${response.result?.response ?? ""}');
@@ -172,62 +173,37 @@ class _EditPageState extends State<EditPage> {
         body: Stack(
           children: [
             _isSummaryLoading
-                ? const Center(
-                    child: CircularProgressIndicator(),
+                ? Container(
+                    color: Colors.grey.withOpacity(0.3),
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
                   )
                 : const SizedBox(),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: _titleController,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      cursorColor: Colors.white,
-                      maxLines: 3,
-                      minLines: 1,
-                      onEditingComplete: _saveNote,
-                      decoration: const InputDecoration(
-                        hintText: "Title",
-                        hintStyle: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 28,
-                          fontWeight: FontWeight.w400,
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.transparent,
-                          ),
-                        ),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.transparent,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _contentController,
+            IgnorePointer(
+              ignoring: _isSummaryLoading,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _titleController,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w400,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w600,
                         ),
                         cursorColor: Colors.white,
-                        maxLines: null,
+                        maxLines: 3,
+                        minLines: 1,
                         onEditingComplete: _saveNote,
                         decoration: const InputDecoration(
-                          hintText: "Content",
+                          hintText: "Title",
                           hintStyle: TextStyle(
                             color: Colors.grey,
-                            fontSize: 18,
+                            fontSize: 28,
                             fontWeight: FontWeight.w400,
                           ),
                           focusedBorder: UnderlineInputBorder(
@@ -242,35 +218,66 @@ class _EditPageState extends State<EditPage> {
                           ),
                         ),
                       ),
-                    ),
-                    _summary.isNotEmpty
-                        ? const Divider(
+                      Expanded(
+                        child: TextFormField(
+                          controller: _contentController,
+                          style: const TextStyle(
                             color: Colors.white,
-                          )
-                        : Container(),
-                    _summary.isNotEmpty
-                        ? SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.2,
-                            child: ListView(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: MarkdownBody(
-                                    data: _summary,
-                                    styleSheet: MarkdownStyleSheet(
-                                      p: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w400,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          cursorColor: Colors.white,
+                          maxLines: null,
+                          onEditingComplete: _saveNote,
+                          decoration: const InputDecoration(
+                            hintText: "Content",
+                            hintStyle: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.transparent,
+                              ),
+                            ),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.transparent,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      _summary.isNotEmpty
+                          ? const Divider(
+                              color: Colors.white,
+                            )
+                          : Container(),
+                      _summary.isNotEmpty
+                          ? SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.2,
+                              child: ListView(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: MarkdownBody(
+                                      data: _summary,
+                                      styleSheet: MarkdownStyleSheet(
+                                        p: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w400,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : const SizedBox(),
-                  ],
+                                ],
+                              ),
+                            )
+                          : const SizedBox(),
+                    ],
+                  ),
                 ),
               ),
             ),

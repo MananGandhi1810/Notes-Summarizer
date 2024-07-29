@@ -99,59 +99,60 @@ class _HomePageState extends State<HomePage> {
               ),
             )
           : GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-            ),
-            itemCount: _notes.length,
-            itemBuilder: (context, index) {
-              final lastEdited = _notes[index].lastEdited;
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Card(
-                  color: colors[index % colors.length],
-                  child: InkWell(
-                    onTap: () => {
-                      Navigator.of(context)
-                          .push(
-                            MaterialPageRoute(
-                              builder: (context) => EditPage(
-                                id: _notes[index].id,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+              ),
+              physics: const BouncingScrollPhysics(),
+              itemCount: _notes.length,
+              itemBuilder: (context, index) {
+                final lastEdited = _notes[index].lastEdited;
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Card(
+                    color: colors[index % colors.length],
+                    child: InkWell(
+                      onTap: () => {
+                        Navigator.of(context)
+                            .push(
+                              MaterialPageRoute(
+                                builder: (context) => EditPage(
+                                  id: _notes[index].id,
+                                ),
+                              ),
+                            )
+                            .then((value) => _loadNotes())
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              _notes[index].title,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Expanded(child: Container()),
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              "${months[lastEdited.month - 1]} ${lastEdited.day}, ${lastEdited.year}",
+                              style: const TextStyle(
+                                fontSize: 16,
                               ),
                             ),
-                          )
-                          .then((value) => _loadNotes())
-                    },
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            _notes[index].title,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                            ),
-                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                        Expanded(child: Container()),
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            "${months[lastEdited.month - 1]} ${lastEdited.day}, ${lastEdited.year}",
-                            style: const TextStyle(
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
-          ),
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: _newNote,
         backgroundColor: colors[_notes.length % colors.length],
