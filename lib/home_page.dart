@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -89,8 +90,9 @@ class _HomePageState extends State<HomePage> {
         slivers: [
           SliverAppBar(
               stretch: true,
+              backgroundColor: Colors.black,
               elevation: 0,
-              expandedHeight: MediaQuery.of(context).size.height * 0.2,
+              expandedHeight: MediaQuery.of(context).size.height * 0.15,
               flexibleSpace: const FlexibleSpaceBar(
                 centerTitle: true,
                 title: Text(
@@ -121,6 +123,7 @@ class _HomePageState extends State<HomePage> {
                       padding: const EdgeInsets.all(8.0),
                       child: Card(
                         color: colors[index % colors.length],
+                        margin: const EdgeInsets.all(0),
                         child: InkWell(
                           onTap: () => {
                             Navigator.of(context)
