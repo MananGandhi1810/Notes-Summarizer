@@ -16,11 +16,11 @@ class RootApp extends StatelessWidget {
       title: 'AI Notes App',
       theme: ThemeData(
         useMaterial3: true,
-        fontFamily: GoogleFonts.lato().fontFamily,
+        fontFamily: GoogleFonts.poppins().fontFamily,
         brightness: Brightness.dark,
         colorScheme: const ColorScheme.dark(
           background: Color(0xFF121212),
-        )
+        ),
       ),
       home: const HomePage(),
     );
